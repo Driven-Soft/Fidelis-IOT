@@ -22,7 +22,7 @@ O **Fidelis VET** foi pensado para ajudar tutores e veterinários a detectar feb
 
 | Componente | Dado | Finalidade |
 |------------|------|-----------|
-| DHT22 | Temperatura e umidade | Detectar febre acima de 39.5°C |
+| DHT22 | Temperatura e umidade | Detectar febre (> 39.5°C) e monitorar risco de choque térmico/hipertermia pelo microclima |
 | HC-SR04 | Distância em cm | Inferir o nível de atividade do pet |
 | LED vermelho | Alerta visual | Acende quando há febre |
 
@@ -77,7 +77,7 @@ Exemplo de payload:
 
 Com a simulação rodando e o fluxo do Node-RED implantado, os dados devem aparecer automaticamente no dashboard a cada 5 segundos.
 
-Para testar o alerta de febre, altere o valor de temperatura do DHT22 no [`diagram.json`](diagram.json) para algo acima de `39.5` e reinicie a simulação.
+Para testar o alerta de febre, altere o valor de temperatura do DHT22 no [`diagram.json`](diagram.json) para algo acima de `40.0` e aguarde os dados carregarem.
 
 ## Arquitetura
 
@@ -98,6 +98,14 @@ Durante o desenvolvimento da prova de conceito, estes pontos já ficaram validad
 * **Regras de negócio na borda:** leitura local dos sensores, classificação de atividade e acionamento do LED sem depender do servidor para decidir o alerta de febre.
 * **Interface amigável:** dashboard focado em leitura rápida dos dados, com gráficos, medidores e alerta visual para febre.
 
+## Diferencial Técnico: Diagnóstico Comportamental
+
+Além dos alertas imediatos, o Fidelis VET transforma dados brutos em inteligência veterinária preventiva:
+
+* **Microclima e Prevenção de Choque Térmico:** O sensor de umidade não mede a hidratação interna, mas a umidade do ar retida na pelagem do animal. Como cães e gatos não suam pela pele e regulam a temperatura arfando (evaporação da saliva), um microclima com umidade acima de 80% anula essa troca de calor. O sistema monitora esse dado para alertar sobre o risco de **intermação (choque térmico)** muito antes da temperatura corporal atingir o estado de febre.
+
+* **Detecção de Letargia e Estresse:** Através do histórico de distância (HC-SR04) no Dashboard, o veterinário pode analisar o padrão de comportamento. Uma linha contínua no status "inativo" por horas seguidas durante o dia acusa letargia (primeiro sintoma da maioria das doenças). Já picos constantes de "ativo" durante a madrugada podem sinalizar dor articular, parasitas ou estresse.
+
 ## Equipe Driven Soft
 
 ### Integrantes
@@ -108,6 +116,12 @@ Durante o desenvolvimento da prova de conceito, estes pontos já ficaram validad
 | Max Hayashi Batista | RM 563717 |
 | Henrique Cunha Torres | RM 565119 |
 
-## Vídeo Pitch
+<br>
 
-* [LINK VIDEO NAO CRIADO AINDA]()
+## Link do Vídeo Pitch:
+
+* [https://www.youtube.com/watch?v=KriLKo_q8xA](https://www.youtube.com/watch?v=KriLKo_q8xA)
+
+## Link do Repositório no Github:
+
+* [https://github.com/Driven-Soft/Fidelis-IOT](https://github.com/Driven-Soft/Fidelis-IOT)

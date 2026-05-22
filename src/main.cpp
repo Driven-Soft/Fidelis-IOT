@@ -33,7 +33,7 @@ const char* MQTT_TOPIC    = "fidelis/coleira/dados";
 #define INTERVALO_MS 5000
 
 DHT dht(DHT_PIN, DHT_TYPE);
-WiFiClientSecure wifiClient;   // TLS em vez de WiFiClient
+WiFiClientSecure wifiClient;
 PubSubClient mqtt(wifiClient);
 
 unsigned long ultimaPublicacao = 0;
@@ -50,17 +50,14 @@ void conectarWiFi() {
 }
 
 void conectarMQTT() {
-  wifiClient.setInsecure(); // aceita TLS sem validar certificado
+  wifiClient.setInsecure();
   mqtt.setServer(MQTT_BROKER, MQTT_PORT);
-  
-  // 60 segundos é mais estável para brokers cloud do que um timeout curto
-  mqtt.setKeepAlive(60); 
+  mqtt.setKeepAlive(60);
 
   while (!mqtt.connected()) {
-    // Se o WiFi cair, precisamos abortar o loop do MQTT para reconectar a rede
     if (WiFi.status() != WL_CONNECTED) {
       Serial.println("WiFi desconectado! Abortando tentativa de MQTT...");
-      return; 
+      return;
     }
 
     Serial.print("Conectando MQTT...");
@@ -68,12 +65,7 @@ void conectarMQTT() {
       Serial.println("OK");
     } else {
       Serial.printf("Falhou (rc=%d), tentando em 3s...\n", mqtt.state());
-      
-      // A CORREÇÃO PRINCIPAL: 
-      // Força o encerramento da conexão segura que falhou, 
-      // prevenindo o esgotamento dos sockets TLS após 3-5 tentativas.
-      wifiClient.stop(); 
-      
+      wifiClient.stop();
       delay(3000);
     }
   }
@@ -121,43 +113,35 @@ void setup() {
 }
 
 void loop() {
-  // 1. Verifica e reconecta o WiFi primeiro, se necessário
   if (WiFi.status() != WL_CONNECTED) {
     Serial.println("Conexão WiFi perdida. Reconectando...");
     conectarWiFi();
   }
 
-  // 2. Com WiFi garantido, verifica e reconecta o MQTT
   if (!mqtt.connected()) {
     conectarMQTT();
   }
-  
-  // Mantém a conexão MQTT viva e processa mensagens recebidas
+
   mqtt.loop();
 
-  // 3. Controle de tempo para publicação (a cada 5 segundos)
   unsigned long agora = millis();
   if (agora - ultimaPublicacao < INTERVALO_MS) return;
   ultimaPublicacao = agora;
 
-  // 4. Leitura dos sensores
   float temperatura = dht.readTemperature();
   float umidade     = dht.readHumidity();
   float distancia   = lerDistancia();
 
-  // Verifica se o DHT22 falhou (retornou Not-a-Number)
   if (isnan(temperatura) || isnan(umidade)) {
     Serial.println("Erro na leitura do DHT22");
     return;
   }
 
-  // 5. Lógica de negócio (atividade, febre e LED)
   String atividade = classificarAtividade(distancia);
   bool   alerta    = temperatura > TEMP_FEBRE;
 
   digitalWrite(LED_PIN, alerta ? HIGH : LOW);
 
-  // 6. Montagem do payload JSON
   StaticJsonDocument<256> doc;
   doc["dispositivo"]  = MQTT_CLIENT;
   doc["temperatura"]  = serialized(String(temperatura, 1));
@@ -170,7 +154,6 @@ void loop() {
   char payload[256];
   serializeJson(doc, payload);
 
-  // 7. Publicação no HiveMQ
   mqtt.publish(MQTT_TOPIC, payload);
   Serial.println("Publicado: " + String(payload));
 }
