@@ -1,0 +1,710 @@
+[
+    {
+        "id": "6ac744b479cffeaa",
+        "type": "mqtt in",
+        "z": "tab-fidelis",
+        "name": "Receber dados coleira",
+        "topic": "fidelis/coleira/dados",
+        "qos": "0",
+        "datatype": "auto",
+        "broker": "hivemq-broker",
+        "nl": false,
+        "rap": false,
+        "rh": 0,
+        "inputs": 0,
+        "x": 220,
+        "y": 700,
+        "wires": [
+            [
+                "490df06011161b38"
+            ]
+        ]
+    },
+    {
+        "id": "490df06011161b38",
+        "type": "json",
+        "z": "tab-fidelis",
+        "name": "Parse JSON",
+        "property": "payload",
+        "action": "obj",
+        "pretty": false,
+        "x": 410,
+        "y": 700,
+        "wires": [
+            [
+                "db967ee95fcc9cbe",
+                "f7a577bcca23203f",
+                "4bd83a0507a9dad7",
+                "23582ade9d5f939b",
+                "259e38af3c5cca41",
+                "b939760e5fe74861"
+            ]
+        ]
+    },
+    {
+        "id": "db967ee95fcc9cbe",
+        "type": "change",
+        "z": "tab-fidelis",
+        "name": "Extrair temperatura",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "payload.temperatura",
+                "tot": "msg"
+            }
+        ],
+        "x": 640,
+        "y": 600,
+        "wires": [
+            [
+                "e0086aedfc4a1ca5"
+            ]
+        ]
+    },
+    {
+        "id": "e0086aedfc4a1ca5",
+        "type": "function",
+        "z": "tab-fidelis",
+        "name": "Parse temperatura",
+        "func": "msg.payload = parseFloat(msg.payload);\nif (isNaN(msg.payload)) { return null; }\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 840,
+        "y": 600,
+        "wires": [
+            [
+                "c9b8b1ef4d4e1f10",
+                "a7c1d2d4b8c6f901",
+                "6f5d19f1f3a2e701"
+            ]
+        ]
+    },
+    {
+        "id": "c9b8b1ef4d4e1f10",
+        "type": "ui_gauge",
+        "z": "tab-fidelis",
+        "name": "Temperatura (C)",
+        "group": "group-fidelis",
+        "order": 1,
+        "width": 6,
+        "height": 4,
+        "gtype": "gage",
+        "title": "Temperatura Corporal",
+        "label": "C",
+        "format": "{{value}}",
+        "min": 35,
+        "max": 42,
+        "colors": [
+            "#00b4d8",
+            "#f4a261",
+            "#e63946"
+        ],
+        "seg1": "38",
+        "seg2": "39.5",
+        "x": 1050,
+        "y": 600,
+        "wires": []
+    },
+    {
+        "id": "a7c1d2d4b8c6f901",
+        "type": "ui_chart",
+        "z": "tab-fidelis",
+        "name": "Grafico temperatura",
+        "group": "group-fidelis",
+        "order": 5,
+        "width": 6,
+        "height": 4,
+        "label": "Temperatura (C)",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "Aguardando dados",
+        "dot": true,
+        "ymin": "35",
+        "ymax": "42",
+        "removeOlder": "2",
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#e63946",
+            "#aec7e8",
+            "#ff7f0e"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 1050,
+        "y": 640,
+        "wires": []
+    },
+    {
+        "id": "6f5d19f1f3a2e701",
+        "type": "switch",
+        "z": "tab-fidelis",
+        "name": "Temperatura alta?",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "gt",
+                "v": "39.5",
+                "vt": "num"
+            },
+            {
+                "t": "lte",
+                "v": "39.5",
+                "vt": "num"
+            }
+        ],
+        "checkall": "false",
+        "repair": false,
+        "outputs": 2,
+        "x": 1040,
+        "y": 680,
+        "wires": [
+            [
+                "1d0e2d1f2a0f4f10"
+            ],
+            [
+                "d1d9f3d4c6b8a101"
+            ]
+        ]
+    },
+    {
+        "id": "1d0e2d1f2a0f4f10",
+        "type": "change",
+        "z": "tab-fidelis",
+        "name": "Alerta: Temperatura alta",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "ALERTA: TEMPERATURA MUITO ELEVADA",
+                "tot": "str"
+            }
+        ],
+        "x": 1260,
+        "y": 660,
+        "wires": [
+            [
+                "9b1d4f6d3c1a7b10",
+                "4d7e1c2b8a9f0d11"
+            ]
+        ]
+    },
+    {
+        "id": "d1d9f3d4c6b8a101",
+        "type": "change",
+        "z": "tab-fidelis",
+        "name": "Temperatura normal",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "Temperatura normal",
+                "tot": "str"
+            }
+        ],
+        "x": 1260,
+        "y": 700,
+        "wires": [
+            [
+                "9b1d4f6d3c1a7b10"
+            ]
+        ]
+    },
+    {
+        "id": "9b1d4f6d3c1a7b10",
+        "type": "ui_text",
+        "z": "tab-fidelis",
+        "group": "group-fidelis",
+        "order": 9,
+        "width": 12,
+        "height": 2,
+        "name": "Status Temperatura",
+        "label": "Status da Temperatura",
+        "format": "{{msg.payload}}",
+        "layout": "col-center",
+        "className": "",
+        "x": 1490,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "4d7e1c2b8a9f0d11",
+        "type": "ui_toast",
+        "z": "tab-fidelis",
+        "position": "top right",
+        "displayTime": "4",
+        "highlight": "",
+        "sendall": true,
+        "outputs": 0,
+        "ok": "OK",
+        "cancel": "",
+        "raw": false,
+        "className": "",
+        "name": "Notificacao Temperatura",
+        "x": 1490,
+        "y": 640,
+        "wires": []
+    },
+    {
+        "id": "f7a577bcca23203f",
+        "type": "change",
+        "z": "tab-fidelis",
+        "name": "Extrair umidade",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "payload.umidade",
+                "tot": "msg"
+            }
+        ],
+        "x": 630,
+        "y": 680,
+        "wires": [
+            [
+                "f1faebf7a3fb5132"
+            ]
+        ]
+    },
+    {
+        "id": "f1faebf7a3fb5132",
+        "type": "function",
+        "z": "tab-fidelis",
+        "name": "Parse umidade",
+        "func": "msg.payload = parseFloat(msg.payload);\nif (isNaN(msg.payload)) { return null; }\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 830,
+        "y": 680,
+        "wires": [
+            [
+                "c594faeb2a9cd221",
+                "582c673f282787e2"
+            ]
+        ]
+    },
+    {
+        "id": "c594faeb2a9cd221",
+        "type": "ui_gauge",
+        "z": "tab-fidelis",
+        "name": "Umidade (%)",
+        "group": "group-fidelis",
+        "order": 2,
+        "width": 6,
+        "height": 4,
+        "gtype": "gage",
+        "title": "Umidade",
+        "label": "%",
+        "format": "{{value}}",
+        "min": 0,
+        "max": 100,
+        "colors": [
+            "#2dc653",
+            "#f4a261",
+            "#e63946"
+        ],
+        "seg1": "60",
+        "seg2": "80",
+        "x": 1050,
+        "y": 660,
+        "wires": []
+    },
+    {
+        "id": "582c673f282787e2",
+        "type": "ui_chart",
+        "z": "tab-fidelis",
+        "name": "Grafico umidade",
+        "group": "group-fidelis",
+        "order": 6,
+        "width": 6,
+        "height": 4,
+        "label": "Umidade (%)",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "Aguardando dados",
+        "dot": true,
+        "ymin": "0",
+        "ymax": "100",
+        "removeOlder": "2",
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#2dc653",
+            "#aec7e8",
+            "#ff7f0e"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 1050,
+        "y": 700,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "4bd83a0507a9dad7",
+        "type": "change",
+        "z": "tab-fidelis",
+        "name": "Extrair distancia",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "payload.distancia_cm",
+                "tot": "msg"
+            }
+        ],
+        "x": 630,
+        "y": 760,
+        "wires": [
+            [
+                "ce49073f2f384f11"
+            ]
+        ]
+    },
+    {
+        "id": "ce49073f2f384f11",
+        "type": "function",
+        "z": "tab-fidelis",
+        "name": "Parse distancia",
+        "func": "msg.payload = parseFloat(msg.payload);\nif (isNaN(msg.payload)) { return null; }\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 830,
+        "y": 760,
+        "wires": [
+            [
+                "09aa6bd4a0cc27a9",
+                "51f8a4621f45c7f4"
+            ]
+        ]
+    },
+    {
+        "id": "09aa6bd4a0cc27a9",
+        "type": "ui_gauge",
+        "z": "tab-fidelis",
+        "name": "Distancia (cm)",
+        "group": "group-fidelis",
+        "order": 3,
+        "width": 6,
+        "height": 4,
+        "gtype": "gage",
+        "title": "Atividade por Distancia",
+        "label": "cm",
+        "format": "{{value}}",
+        "min": 0,
+        "max": 200,
+        "colors": [
+            "#e63946",
+            "#f4a261",
+            "#2dc653"
+        ],
+        "seg1": "30",
+        "seg2": "80",
+        "x": 1050,
+        "y": 740,
+        "wires": []
+    },
+    {
+        "id": "51f8a4621f45c7f4",
+        "type": "ui_chart",
+        "z": "tab-fidelis",
+        "name": "Grafico distancia",
+        "group": "group-fidelis",
+        "order": 7,
+        "width": 6,
+        "height": 4,
+        "label": "Distancia (cm)",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "Aguardando dados",
+        "dot": true,
+        "ymin": "0",
+        "ymax": "200",
+        "removeOlder": "2",
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#457b9d",
+            "#aec7e8",
+            "#ff7f0e"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 1050,
+        "y": 780,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "23582ade9d5f939b",
+        "type": "change",
+        "z": "tab-fidelis",
+        "name": "Extrair atividade",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "payload.atividade",
+                "tot": "msg"
+            }
+        ],
+        "x": 630,
+        "y": 840,
+        "wires": [
+            [
+                "d9b95844261e7e71"
+            ]
+        ]
+    },
+    {
+        "id": "d9b95844261e7e71",
+        "type": "ui_text",
+        "z": "tab-fidelis",
+        "group": "group-fidelis",
+        "order": 4,
+        "width": 6,
+        "height": 2,
+        "name": "Nivel de Atividade",
+        "label": "Atividade do Pet",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "x": 1050,
+        "y": 840,
+        "wires": []
+    },
+    {
+        "id": "259e38af3c5cca41",
+        "type": "change",
+        "z": "tab-fidelis",
+        "name": "Extrair alerta",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "payload.alerta_febre",
+                "tot": "msg"
+            }
+        ],
+        "x": 620,
+        "y": 920,
+        "wires": [
+            [
+                "8323e8f72acd4e6f"
+            ]
+        ]
+    },
+    {
+        "id": "8323e8f72acd4e6f",
+        "type": "switch",
+        "z": "tab-fidelis",
+        "name": "Tem febre?",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "true"
+            },
+            {
+                "t": "false"
+            }
+        ],
+        "checkall": "false",
+        "repair": false,
+        "outputs": 2,
+        "x": 810,
+        "y": 920,
+        "wires": [
+            [
+                "b2ccaaba296a6c13"
+            ],
+            [
+                "dd3baa9678d9f238"
+            ]
+        ]
+    },
+    {
+        "id": "b2ccaaba296a6c13",
+        "type": "change",
+        "z": "tab-fidelis",
+        "name": "Alerta: FEBRE",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "ALERTA: FEBRE DETECTADA",
+                "tot": "str"
+            }
+        ],
+        "x": 1000,
+        "y": 900,
+        "wires": [
+            [
+                "e675f85b82348c6b",
+                "5e10130643c66ff0"
+            ]
+        ]
+    },
+    {
+        "id": "dd3baa9678d9f238",
+        "type": "change",
+        "z": "tab-fidelis",
+        "name": "Status: Normal",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "Temperatura normal",
+                "tot": "str"
+            }
+        ],
+        "x": 1000,
+        "y": 940,
+        "wires": [
+            [
+                "e675f85b82348c6b"
+            ]
+        ]
+    },
+    {
+        "id": "e675f85b82348c6b",
+        "type": "ui_text",
+        "z": "tab-fidelis",
+        "group": "group-fidelis",
+        "order": 8,
+        "width": 12,
+        "height": 2,
+        "name": "Status Alerta",
+        "label": "Status de Saude",
+        "format": "{{msg.payload}}",
+        "layout": "col-center",
+        "className": "",
+        "x": 1210,
+        "y": 920,
+        "wires": []
+    },
+    {
+        "id": "5e10130643c66ff0",
+        "type": "ui_toast",
+        "z": "tab-fidelis",
+        "position": "top right",
+        "displayTime": "4",
+        "highlight": "",
+        "sendall": true,
+        "outputs": 0,
+        "ok": "OK",
+        "cancel": "",
+        "raw": false,
+        "className": "",
+        "name": "Notificacao Febre",
+        "x": 1210,
+        "y": 880,
+        "wires": []
+    },
+    {
+        "id": "b939760e5fe74861",
+        "type": "debug",
+        "z": "tab-fidelis",
+        "name": "Debug payload",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 630,
+        "y": 980,
+        "wires": []
+    },
+    {
+        "id": "hivemq-broker",
+        "type": "mqtt-broker",
+        "name": "HiveMQ Cloud",
+        "broker": "c175cd285334458eab19178117bdbc91.s1.eu.hivemq.cloud",
+        "port": "8883",
+        "tls": "",
+        "clientid": "nodered-fidelis-001",
+        "autoConnect": true,
+        "usetls": true,
+        "compatmode": false,
+        "protocolVersion": 4,
+        "keepalive": 15,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "group-fidelis",
+        "type": "ui_group",
+        "name": "Coleira Fidelis - Monitoramento Pet",
+        "tab": "ui-tab-fidelis",
+        "order": 1,
+        "disp": true,
+        "width": 12,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "ui-tab-fidelis",
+        "type": "ui_tab",
+        "name": "Fidelis Vet",
+        "icon": "pets",
+        "order": 1,
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "ae2c55d2c6175bd9",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-dashboard": "3.6.6"
+        }
+    }
+]
