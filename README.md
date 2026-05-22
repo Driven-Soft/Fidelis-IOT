@@ -1,4 +1,4 @@
-# Fidelis VET - Coleira IoT para Monitoramento Pet
+# Fidelis VET - Coleira Inteligente IoT para Monitoramento de Pet (Cachorro ou gato)
 
 Protótipo simulado de uma coleira inteligente baseada em IoT para monitoramento contínuo da saúde de pets em tempo real.
 
