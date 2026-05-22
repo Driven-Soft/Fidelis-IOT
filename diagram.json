@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "author": "Fidelis IoT — FIAP Challenge 2026",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "board-esp32-devkit-c-v4",
+      "id": "esp",
+      "top": 0,
+      "left": 0,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-dht22",
+      "id": "dht1",
+      "top": -60,
+      "left": 220,
+      "attrs": { "temperature": "38.2", "humidity": "65" }
+    },
+    {
+      "type": "wokwi-hc-sr04",
+      "id": "hcsr1",
+      "top": 80,
+      "left": 220,
+      "attrs": { "distance": "45" }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "led1",
+      "top": 180,
+      "left": 130,
+      "attrs": { "color": "red", "label": "ALERTA FEBRE" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r1",
+      "top": 200,
+      "left": 90,
+      "attrs": { "value": "220" }
+    }
+  ],
+  "connections": [
+    ["esp:TX", "$serialMonitor:RX", "", []],
+    ["esp:RX", "$serialMonitor:TX", "", []],
+
+    ["dht1:VCC", "esp:3V3",  "red",   []],
+    ["dht1:GND", "esp:GND.1",  "black", []],
+    ["dht1:SDA", "esp:21",  "green", []],
+
+    ["hcsr1:VCC",  "esp:5V", "red",    []],
+    ["hcsr1:GND",  "esp:GND", "black",  []],
+    ["hcsr1:TRIG", "esp:25",  "yellow", []],
+    ["hcsr1:ECHO", "esp:26", "blue",   []],
+
+    ["esp:23", "r1:1",    "orange", []],
+    ["r1:2",   "led1:A",  "orange", []],
+    ["led1:K", "esp:GND", "black",  []]
+  ],
+  "dependencies": {}
+}
